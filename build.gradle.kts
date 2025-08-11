@@ -2,6 +2,7 @@ plugins {
 	java
 	id("org.springframework.boot") version "3.5.4"
 	id("io.spring.dependency-management") version "1.1.7"
+	id("io.freefair.lombok") version "8.4"
 }
 
 group = "com.example"
@@ -23,35 +24,35 @@ repositories {
 	mavenCentral()
 }
 
-extra["springAiVersion"] = "1.0.0"
-
 dependencies {
-	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+	implementation("org.springframework.boot:spring-boot-starter-web")
 	implementation("org.springframework.boot:spring-boot-starter-security")
 	implementation("org.springframework.boot:spring-boot-starter-validation")
-	implementation("org.springframework.boot:spring-boot-starter-web")
+	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 	implementation("org.liquibase:liquibase-core")
 	implementation("io.jsonwebtoken:jjwt-api:0.11.5")
+
 	runtimeOnly("io.jsonwebtoken:jjwt-impl:0.11.5")
 	runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.11.5")
-	implementation("org.springframework.ai:spring-ai-starter-model-openai")
-	developmentOnly("org.springframework.boot:spring-boot-devtools")
-	runtimeOnly("org.postgresql:postgresql")
+
+	runtimeOnly("org.postgresql:postgresql") // для прод/локальной dev БД
+
+	compileOnly("org.projectlombok:lombok")
+	annotationProcessor("org.projectlombok:lombok")
 	annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
+
+	developmentOnly("org.springframework.boot:spring-boot-devtools")
+
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testImplementation("org.springframework.security:spring-security-test")
-	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-	testImplementation("org.testcontainers:junit-jupiter:1.19.3")
-	testImplementation("org.testcontainers:postgresql:1.19.3")
+	testRuntimeOnly("com.h2database:h2:2.2.224") // только во время тестов
 
-}
-
-dependencyManagement {
-	imports {
-		mavenBom("org.springframework.ai:spring-ai-bom:${property("springAiVersion")}")
-	}
 }
 
 tasks.withType<Test> {
 	useJUnitPlatform()
+	systemProperty(
+		"spring.profiles.active",
+		System.getProperty("spring.profiles.active") ?: "test"
+	)
 }

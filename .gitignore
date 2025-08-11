@@ -36,3 +36,12 @@ out/
 ### VS Code ###
 .vscode/
 .env
+.build
+.gradle
+.git
+.gitignore
+Docker
+**/out
+**/bin
+**/.idea
+**/.vscode
