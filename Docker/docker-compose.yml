@@ -1,32 +1,23 @@
 services:
-  db:
-    image: postgres:15
-    container_name: card-database
-    restart: always
-    environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
-    ports:
-      - "${DB_PORT:-5433}:5432"
-    volumes:
-      - card-db-data:/var/lib/postgresql/data
   app:
-    build:
-      context: ..
-      dockerfile: Docker/Dockerfile
-    container_name: card-app
+    image: ${REGISTRY_IMAGE:-ghcr.io/yourorg/card-management}:${TAG:-latest}
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    env_file:
+      - ./env/${ENV:-dev}.env
     depends_on:
       - db
-    env_file:
-      - .env
+  db:
+    image: postgres:16
+    restart: unless-stopped
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/${POSTGRES_DB}
-      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
-      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
-      JWT_SECRET: ${JWT_SECRET}
+      POSTGRES_DB: cards
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+    volumes:
+      - cards_pg:/var/lib/postgresql/data
     ports:
-      - "${APP_PORT:-8080}:8080"
-
+      - "5432:5432"
 volumes:
-  card-db-data:
+  cards_pg:

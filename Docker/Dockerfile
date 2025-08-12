@@ -1,10 +1,16 @@
-FROM gradle:8.4.0-jdk17 AS build
+FROM eclipse-temurin:17-jdk AS build
 WORKDIR /app
+COPY gradlew gradlew
+COPY gradle gradle
+COPY build.gradle.kts settings.gradle.kts ./
+RUN ./gradlew --version
 COPY . .
-RUN gradle clean bootJar --no-daemon
+RUN ./gradlew clean bootJar -x test
 
-FROM eclipse-temurin:17-jdk
-WORKDIR /app
-COPY --from=build /app/build/libs/*.jar app.jar
+FROM eclipse-temurin:17-jre
+ENV TZ=UTC \
+    JAVA_OPTS="-XX:+UseG1GC -XX:MaxRAMPercentage=75"
+WORKDIR /opt/app
+COPY --from=build /app/build/libs/*-SNAPSHOT.jar app.jar
 EXPOSE 8080
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENTRYPOINT ["sh","-c","java $JAVA_OPTS -jar app.jar"]
