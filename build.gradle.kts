@@ -56,4 +56,5 @@ tasks.withType<Test> {
 		"spring.profiles.active",
 		System.getProperty("spring.profiles.active") ?: "test"
 	)
+
 }

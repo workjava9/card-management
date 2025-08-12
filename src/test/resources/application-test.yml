@@ -21,4 +21,4 @@ security:
 
 card:
   crypto:
-    secret: test_test_test_test_test_test_test_test_32B
+    secret: test_crypto_secret_key_which_is_long_enough_32_chars

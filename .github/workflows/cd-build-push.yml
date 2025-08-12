@@ -1,43 +1,43 @@
-name: Build & Push Image
+name: Build & Push Image (Buildpacks)
+
 on:
   push:
     branches: [ "main" ]
-    tags: [ "v*" ]
-
-env:
-  REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
 
 jobs:
-  docker:
+  build-image:
     runs-on: ubuntu-latest
+
     permissions:
       contents: read
       packages: write
-      id-token: write
+
     steps:
-      - uses: actions/checkout@v4
-      - name: Log in to GHCR
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+          cache: gradle
+
+      - name: Build jar
+        run: ./gradlew clean build -x test
+
+      - name: Login to GHCR
         uses: docker/login-action@v3
         with:
-          registry: ${{ env.REGISTRY }}
+          registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Extract metadata (tags, labels)
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-          tags: |
-            type=ref,event=branch
-            type=semver,pattern={{version}}
-            type=sha
+      - name: Build OCI image with Buildpacks
+        run: |
+          ./gradlew bootBuildImage \
+            --imageName ghcr.io/${{ github.repository }}:latest \
+            -PBP_JVM_VERSION=17
 
-      - name: Build & push
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+      - name: Push image
+        run: docker push ghcr.io/${{ github.repository }}:latest

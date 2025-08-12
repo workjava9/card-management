@@ -1,13 +1,16 @@
 services:
   app:
-    image: ${REGISTRY_IMAGE:-ghcr.io/yourorg/card-management}:${TAG:-latest}
-    restart: unless-stopped
+    build:
+      context: ..
+      dockerfile: Dockerfile
     ports:
       - "8080:8080"
     env_file:
-      - ./env/${ENV:-dev}.env
+      - ./env/dev.env
     depends_on:
       - db
+    restart: unless-stopped
+
   db:
     image: postgres:16
     restart: unless-stopped
@@ -18,6 +21,7 @@ services:
     volumes:
       - cards_pg:/var/lib/postgresql/data
     ports:
-      - "5432:5432"
+      - "5433:5432"
+
 volumes:
   cards_pg:
