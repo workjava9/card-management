@@ -57,4 +57,9 @@ tasks.withType<Test> {
 		System.getProperty("spring.profiles.active") ?: "test"
 	)
 
+    tasks.javadoc {
+        options.encoding = "UTF-8"
+    }
+
+
 }

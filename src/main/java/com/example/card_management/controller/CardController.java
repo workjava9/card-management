@@ -12,6 +12,9 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import java.time.YearMonth;
 
+/**
+ * REST endpoints for managing cards (create, list, status, delete).
+ */
 @RestController
 @RequestMapping("/api/cards")
 public class CardController {

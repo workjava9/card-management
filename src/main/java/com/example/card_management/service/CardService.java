@@ -14,6 +14,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.YearMonth;
 
+/**
+ * Business logic for cards: creation, masking, filtering and status changes.
+ */
 @Service
 public class CardService {
 
